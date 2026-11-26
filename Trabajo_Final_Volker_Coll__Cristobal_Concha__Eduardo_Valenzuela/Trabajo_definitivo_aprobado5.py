@@ -698,6 +698,7 @@ while True:
     print("6. RF06: Anulación de pasajes")
     print("7. RF07: Seleccionar un viaje y mostrar todos sus pasajes vigentes")
     print("8. RF08: Consultas y reportes")
+    print("0. Salir del programa")
     op=input("Ingrese la opcion deseada: ")
 
     #OPCION 1 CLIENTES
@@ -982,6 +983,9 @@ while True:
     #OPCION 9 CONSULTAS Y REPORTES
     elif op=="8":
         opcion9(Clientes,Buses,Viajes,Ciudades,Pasajes)
+    elif op=="0":
+        print(Fore.CYAN + "Saliendo del programa...")
+        break
         
     else:
         print(Fore.RED + "Opcion invalida")

@@ -1,0 +1,647 @@
+listaClientes="listaCliente.csv"
+listaBuses="listaBuses.csv"
+ListaViajes="ListaViajes.csv"
+listaCiudades="ListaCiudades.csv"
+listaPasajes="ListaPasajes.csv"
+ENCODE="UTF-8"
+
+import datetime
+import os
+import csv
+#CLASE CLIENTE QUE FUNCIONA COMO NODO
+class Cliente:
+    def __init__(self,idCliente:int,rut:int,nombre:str,apellido_paterno:str,apellido_materno:str,fono:int):
+        self.idCliente=idCliente
+        self.rut=rut
+        self.nombre=nombre
+        self.apellido_paterno=apellido_paterno
+        self.apellido_materno=apellido_materno
+        self.fono=fono
+        self.siguiente=None
+
+#CLASE BUS QUE FUNCIONA COMO NODO
+class Bus:
+    def __init__(self,idBus:int,patente:str,capacidad:int,disponibilidad:bool):
+        self.idBus=idBus
+        self.patente=patente
+        self.capacidad=capacidad
+        self.disponibilidad=disponibilidad
+        self.siguiente=None
+
+#CLASE CIUDAD QUE FUNCIONA COMO NODO
+class Ciudad:
+    def __init__(self,id_ciudad:int,nombre:str,posicion:int):
+        self.id_ciudad=id_ciudad
+        self.nombre=nombre
+        self.posicion=posicion
+        self.siguiente=None
+
+#CLASE VIAJE QUE FUNCIONA COMO NODO
+class Viaje:
+    def __init__(self,id_viaje,id_bus,origen,destino,fecha,hora):
+        self.id_viaje=id_viaje
+        self.id_bus=id_bus
+        self.origen=origen
+        self.destino=destino
+        self.fecha=fecha
+        self.hora=hora
+        self.siguiente=None
+
+
+class Pasaje:
+    def __init__(self,id_pasaje,id_viaje,id_cliente,id_origen,id_destino,asiento,valor,estado):
+        self.id_pasaje=id_pasaje
+        self.id_viaje=id_viaje
+        self.id_cliente=id_cliente
+        self.id_origen=id_origen
+        self.id_destino=id_destino
+        self.asiento=asiento
+        self.valor=valor
+        self.estado=estado
+        self.siguiente=None
+
+#CLASE LISTA ENLAZADA QUE CONTIENE TODAS LAS FUNCIONES
+class ListaEnlazada:
+    def __init__(self):
+        self.inicio=None
+
+#FUNCION AGREGAR LOS NODOS A LAS LISTAS
+    def agregar(self,nuevo):
+        if self.inicio==None:
+            self.inicio=nuevo
+        else:
+            actual=self.inicio
+            while actual.siguiente!=None:
+                actual=actual.siguiente
+            actual.siguiente=nuevo
+
+#FUNCION QUE MUESTRA LA LISTA DE CLIENTES
+    def mostrarClientes(self):
+        if self.inicio==None:
+            raise Exception("LISTA VACIA")
+        actual=self.inicio
+        print("-----------------------")
+        while actual!=None:
+            print(f"ID: {actual.idCliente}")
+            print(f"RUT: {actual.rut}")
+            print(f"NOMBRE: {actual.nombre}")
+            print(f"APELLIDO PATERNO: {actual.apellido_paterno}")
+            print(f"APELLIDO MATERNO: {actual.apellido_materno}")
+            print(f"FONO: {actual.fono}")
+            print("-----------------------")
+            actual=actual.siguiente
+
+#FUNCION QUE BUSCA A UN CLIENTE SEGUN SU ID
+    def buscarCliente(self,id:int):
+        if self.inicio==None:
+            raise Exception("LISTA VACIA")
+        actual=self.inicio
+        while(actual!=None):
+            if(actual.idCliente==id):
+                return actual
+            actual=actual.siguiente
+        raise Exception("CLIENTE NO ENCONTRADO")
+
+#FUNCION QUE MUESTRA LA LISTA DE BUSES
+    def mostrarBuses(self):
+        if self.inicio==None:
+            raise Exception("LISTA VACIA")
+        actual=self.inicio
+        print("-----------------------")
+        while actual!=None:
+            print(f"ID: {actual.idBus}")
+            print(f"PATENTE: {actual.patente}")
+            print(f"CAPACIDAD: {actual.capacidad}")
+            print(f"ESTADO: {actual.disponibilidad}")
+            print("-----------------------")
+            actual=actual.siguiente
+
+#FUNCION QUE BUSCA A UN BUS SEGUN SU ID
+    def buscarBus(self,id:int)->Bus:
+        if self.inicio==None:
+            raise Exception("LISTA VACIA")
+        actual=self.inicio
+        while(actual!=None):
+            if(actual.idBus==id):
+                return actual
+            actual=actual.siguiente
+        raise Exception("BUS NO ENCONTRADO")
+
+#FUNCION QUE MUESTRA LA LISTA DE CIUDADES
+    def mostrarCiudades(self):
+        if self.inicio==None:
+            raise Exception("LISTA VACIA")
+        actual=self.inicio
+        print("-----------------------")
+        while actual!=None:
+            print(f"ID: {actual.id_ciudad}")
+            print(f"CIUDAD: {actual.nombre}")
+            print(f"POSICIÓN: {actual.posicion}")
+            print("-----------------------")
+            actual=actual.siguiente
+
+    #FUNCION QUE MUESTRA LA LISTA DE CIUDADES
+    def mostrarViajes(self):
+        if self.inicio==None:
+            raise Exception("LISTA VACIA")
+        actual=self.inicio
+        print("-----------------------")
+        while actual!=None:
+            print(f"ID VIAJE: {actual.id_viaje}")
+            print(f"ID BUS: {actual.id_bus}")
+            print(f"ORIGEN: {actual.origen}")
+            print(f"DESTINO: {actual.destino}")
+            print(f"FECHA: {actual.fecha}")
+            print(f"HORA: {actual.hora}")
+            print("-----------------------")
+            actual=actual.siguiente
+
+
+
+#FUNCION QUE GUARDA A LOS CLIENTES DE LA LISTA EN UN ARCHIVO
+def guardar_clientes(lista:ListaEnlazada):
+    with open("ListaCliente.csv","w",encoding="utf-8") as archivo:
+        archivo.write("idCliente,rut,nombre,apellido_paterno,apellido_materno,fono\n")
+        actual=lista.inicio
+        while actual!=None:
+            archivo.write(
+                f"{actual.idCliente},"
+                f"{actual.rut},"
+                f"{actual.nombre},"
+                f"{actual.apellido_paterno},"
+                f"{actual.apellido_materno},"
+                f"{actual.fono}\n"
+            )
+            actual=actual.siguiente
+
+#FUNCION QUE CARGA LOS CLIENTES DEL ARCHIVO A LA LISTA
+def cargar_Clientes(lista:ListaEnlazada):
+    with open("ListaCliente.csv","r",encoding="utf-8") as archivo:
+        lector=csv.DictReader(archivo)
+        for fila in lector:
+            nuevoCliente=Cliente(
+                (fila["idCliente"]),
+                (fila["rut"]),
+                (fila["nombre"]),
+                (fila["apellido_paterno"]),
+                (fila["apellido_materno"]),
+                (fila["fono"])
+            )
+            lista.agregar(nuevoCliente)
+
+#FUNCION QUE GUARDA A LOS BUSES DE LA LISTA EN UN ARCHIVO
+def guardar_buses(lista:ListaEnlazada):
+    with open("listaBuses.csv","w",encoding="utf-8") as archivo:
+        archivo.write("idBus,patente,capacidad,disponibilidad\n")
+        actual=lista.inicio
+        while actual!=None:
+            archivo.write(
+                f"{actual.idBus},"
+                f"{actual.patente},"
+                f"{actual.capacidad},"
+                f"{actual.disponibilidad}\n"
+            )
+            actual=actual.siguiente
+
+
+#FUNCION QUE CARGA LOS BUSES DEL ARCHIVO A LA LISTA
+def cargar_Bus(lista:ListaEnlazada):
+    with open("listaBuses.csv","r",encoding="utf-8") as archivo:
+        lector=csv.DictReader(archivo)
+        for fila in lector:
+            nuevoBus=Bus(
+                (fila["idBus"]),
+                (fila["patente"]),
+                (fila["capacidad"]),
+                (fila["disponibilidad"])
+            )
+            lista.agregar(nuevoBus)
+
+#FUNCION QUE CARGA LAS CIUDADES DEL ARCHIVO A LA LISTA
+def cargar_Ciudad(lista:ListaEnlazada):
+    with open("listaCiudades.csv","r",encoding="utf-8") as archivo:
+        lector=csv.DictReader(archivo)
+        for fila in lector:
+            nuevaCiudad=Ciudad(
+                (fila["id_ciudad"]),
+                (fila["nombre"]),
+                (fila["posicion"])
+            )
+            lista.agregar(nuevaCiudad)
+
+#FUNCION QUE GUARDA A LOS VIAJES DE LA LISTA EN UN ARCHIVO
+def guardar_viajes(lista:ListaEnlazada):
+    with open("listaViajes.csv","w",encoding="utf-8") as archivo:
+        archivo.write("id_viaje,id_bus,origen,destino,fecha,hora\n")
+        actual=lista.inicio
+        while actual!=None:
+            archivo.write(
+                f"{actual.id_viaje},"
+                f"{actual.id_bus},"
+                f"{actual.origen},"
+                f"{actual.destino},"
+                f"{actual.fecha},"
+                f"{actual.hora}\n"
+            )
+            actual=actual.siguiente
+
+#FUNCION QUE GUARDA A LOS PASAJES DE LA LISTA EN UN ARCHIVO
+def guardar_pasajes(lista:ListaEnlazada):
+    with open("listaPasajes.csv","w",encoding="utf-8") as archivo:
+        archivo.write("id_pasaje,id_viaje,id_cliente,id_origen,id_destino,asiento,valor,estado\n")
+        actual=lista.inicio
+        while actual!=None:
+            archivo.write(
+                f"{actual.id_pasaje},"
+                f"{actual.id_viaje},"
+                f"{actual.id_cliente},"
+                f"{actual.id_origen},"
+                f"{actual.id_destina},"
+                f"{actual.asiento},"
+                f"{actual.valor},"
+                f"{actual.estado}\n"
+            )
+            actual=actual.siguiente
+
+#FUNCION QUE CARGA LOS VIAJES DEL ARCHIVO A LA LISTA
+def cargar_viajes(lista:ListaEnlazada):
+    with open("listaViajes.csv","r",encoding="utf-8") as archivo:
+        lector=csv.DictReader(archivo)
+        for fila in lector:
+            nuevoViaje=Viaje(
+                (fila["id_viaje"]),
+                (fila["id_bus"]),
+                (fila["origen"]),
+                (fila["destino"]),
+                (fila["fecha"]),
+                (fila["hora"]),
+            )
+            lista.agregar(nuevoViaje)
+
+#INICIO DEL MAIN
+
+Clientes=ListaEnlazada()
+cargar_Clientes(Clientes)
+Buses=ListaEnlazada()
+cargar_Bus(Buses)
+Ciudades=ListaEnlazada()
+cargar_Ciudad(Ciudades)
+Viajes=ListaEnlazada()
+cargar_viajes(Viajes)
+
+while True:
+    print("RF")
+    print("1. RF01: Registrar, listar y buscar clientes")
+    print("2. RF02: Registrar, listar y consultar buses")
+    print("3. RF03: Consultar el catálogo persistente de las seis ciudades y sus posiciones")
+    print("4. RF04: Programar y consultar viajes")
+    print("5. RF05: Ventas de pasajes")
+    print("6. RF06: Reutilización de asientos por tramo")
+    print("7. RF07: Anulación de pasajes")
+    print("8. RF08: Seleccionar un viaje y mostrar todos sus pasajes vigentes")
+    print("9. RF09: Consultas y reportes")
+    op=input("Ingrese la opcion deseada: ")
+
+    #OPCION 1 CLIENTES
+    if op=="1": #REGISTRAR, LISTAR Y BUSCAR CLIENTES
+        while True:
+            print("1. Registrar Cliente")
+            print("2. Listar Clientes")
+            print("3. Buscar Cliente")
+            op2=input("Ingrese la opcion deseada: ")
+            #REGISTRAR CLIENTE
+            if op2=="1":
+                idCliente=input("Ingrese el id: ")
+                rut=input("ingrese el rut: ")
+                nombre=input("Ingrese el nombre: ")
+                apeP=input("Ingrese el apellido paterno: ")
+                apeM=input("Ingrese el apellido Materno: ")
+                fono=input("Ingrese el telefono: ")
+                nuevoCliente=Cliente(idCliente,rut,nombre,apeP,apeM,fono)
+                Clientes.agregar(nuevoCliente)
+                guardar_clientes(Clientes)
+            #LISTAR CLIENTES
+            elif op2=="2":
+                Clientes.mostrarClientes()
+            #BUSCAR CLIENTE
+            elif op2=="3":
+                id=input("Ingrese el id del cliente a buscar: ")
+                buscado=Clientes.buscarCliente(id)
+                print("-----------------------")
+                print(f"ID: {buscado.idCliente}")
+                print(f"RUT: {buscado.rut}")
+                print(f"NOMBRE: {buscado.nombre}")
+                print(f"APELLIDO PATERNO: {buscado.apellido_paterno}")
+                print(f"APELLIDO MATERNO: {buscado.apellido_materno}")
+                print(f"FONO: {buscado.fono}")
+                print("-----------------------")
+
+    #OPCION 2 BUSES
+    elif op=="2":
+        while True:
+            #idBus:int,patente:str,capacidad:int,disponibilidad:bool
+            print("1. Registrar Bus")
+            print("2. Listar Buses")
+            print("3. Buscar Bus")
+            op2=input("Ingrese la opcion deseada: ")
+            #REGISTRAR BUS
+            if op2=="1":
+                id=input("Ingrese el id: ")
+                patente=input("Ingrese la patente: ")
+                capacidad=input("Ingrese la capacidad: ")
+                disponible=input("Ingrese la disponibilidad (True/False): ")
+                nuevoBus=Bus(id,patente,capacidad,disponible)
+                Buses.agregar(nuevoBus)
+                guardar_buses(nuevoBus)
+            #MOSTRAR LISTA DE BUSES
+            elif op2=="2":
+                Buses.mostrarBuses()
+            #BUSCAR BUS
+            elif op2=="3":
+                id=input("Ingrese el id del cliente a buscar: ")
+                buscado=Buses.buscarBus(id)
+                print("-----------------------")
+                print(f"ID: {buscado.idBus}")
+                print(f"PATENTE: {buscado.patente}")
+                print(f"CAPACIDAD: {buscado.capacidad}")
+                print(f"ESTADO: {buscado.disponibilidad}")
+                print("-----------------------")
+
+    #OPCION 3 CATALOGO DE CIUDADES            
+    elif op=="3":
+        Ciudades.mostrarCiudades()
+
+    #OPCION 4 PROGRAMAR Y CONSULTAR VIAJES    
+    elif op=="4":
+        while True:
+            print("1. Programar viaje")
+            print("2. Consultar Viajes")
+            op2=input("Ingrese la opcion deseada: ")
+            #PROGRAMAR VIAJE
+            if op2=="1":
+                id_viaje=input("Ingrese el id del viaje: ")
+                id_bus=input("Ingrese el id del bus: ")
+                origen=input("Ingrese la ciudad de origen: ")
+                destino=input("Ingrese la ciudad de destino: ")
+                fecha=input("Ingrese la fecha(DD/MM/AAAA): ")
+                #fecha=datetime.strptime(fecha, "%d/%m/%Y")
+                hora=input("Ingrese la hora de salida(HH:MM): ")
+                #hora = datetime.strptime(hora, "%H:%M").time()
+                nuevoViaje=Viaje(id_viaje,id_bus,origen,destino,fecha,hora)
+                Viajes.agregar(nuevoViaje)
+                guardar_viajes(Viajes)
+                
+            #CONSULTAR VIAJES
+            elif op2=="2":
+                Viajes.mostrarViajes()
+
+    #OPCION 5 VENTA DE PASAJES
+    #id_pasaje,id_viaje,id_cliente,id_origen,id_destino,asiento,valor,estado
+    elif op=="5":
+        id_pasaje=input("Ingrese el id del pasaje: ")
+        id_viaje=input("Ingrese el id del viaje: ")
+        id_cliente=input("Ingrese el id del cliente: ")
+        id_origen=input("Ingrese el id de origen: ")
+        id_destino=input("Ingrese el id de destino: ")
+        asiento="Ingrese el numero de asiento: "
+        #CALCULAR EL VALOR DEL PASAJE
+        valor=0
+        estado="Activo"
+        nuevoPasaje=Pasaje(id_pasaje,id_viaje,id_cliente,id_origen,id_destino,asiento,valor,estado)
+
+
+    #OPCION 7 ANULACIÓN DE PASAJES
+    elif op=="7":
+        pass
+
+    #OPCION 8 SELECCIONAR UN VIAJE Y MOSTAR TODOS SUS PASAJES VIGENTES
+    elif op=="8":
+        pass
+
+    #OPCION 9 CONSULTAS Y REPORTES
+    elif op=="9":
+        pass
+
+
+
+
+
+#FUNCION QUE CARGA LOS PASAJES DEL ARCHIVO A LA LISTA
+def cargar_pasajes(lista:ListaEnlazada):
+    with open("listaPasajes.csv","r",encoding="utf-8") as archivo:
+        lector=csv.DictReader(archivo)
+        for fila in lector:
+            nuevoPasaje=Pasaje(
+                (fila["id_pasaje"]),
+                (fila["id_viaje"]),
+                (fila["id_cliente"]),
+                (fila["id_origen"]),
+                (fila["id_destino"]),
+                (fila["asiento"]),
+                (fila["valor"]),
+                (fila["estado"])
+            )
+            lista.agregar(nuevoPasaje)
+#FUNCION QUE GUARDA A LOS PASAJES DE LA LISTA EN UN ARCHIVO
+def guardar_pasajes(lista:ListaEnlazada):
+    with open("listaPasajes.csv","w",encoding="utf-8") as archivo:
+        archivo.write("id_pasaje,id_viaje,id_cliente,id_origen,id_destino,asiento,valor,estado\n")
+        actual=lista.inicio
+        while actual!=None:
+            archivo.write(
+                f"{actual.id_pasaje},"
+                f"{actual.id_viaje},"
+                f"{actual.id_cliente},"
+                f"{actual.id_origen},"
+                f"{actual.id_destino},"
+                f"{actual.asiento},"
+                f"{actual.valor},"
+                f"{actual.estado}\n"
+            )
+            actual=actual.siguiente
+
+#FUNCION QUE OBTIENE LOS TRAMOS DEL VIAJE
+def obtener_tramos(origen,destino):
+    if origen<destino:
+        return list(range(origen,destino))
+    elif origen>destino:
+        return list(range(origen,destino,-1))
+    else:
+        return []
+
+#FUNCION QUE CALCULA EL VALOR DEL VIAJE
+def calcular_valor(origen, destino):
+    precio_base=10000
+    tramos_totales=5
+    tramos_utilizados=len(obtener_tramos(origen, destino))
+    tramos_no_utilizados=tramos_totales - tramos_utilizados
+    descuento=precio_base*0.10*tramos_no_utilizados
+    return int(precio_base-descuento)
+
+#COMPRUEBA LOS TRAMOS DE LOS PASAJES
+def comprobar_tramos(origen1,destino1,origen2,destino2):
+    tramos1=set(obtener_tramos(origen1, destino1))
+    tramos2=set(obtener_tramos(origen2, destino2))
+    return bool(tramos1 & tramos2)
+
+#FUNCION QUE REVISA SI EL ASIENTO ESTA DISPONIBLE
+def asiento_disponible(inicio,id_viaje,asiento,origen,destino):
+    actual=inicio
+    while actual!=None:
+        if (actual.id_viaje==id_viaje
+            and actual.asiento==asiento
+            and actual.estado==True):
+            if comprobar_tramos(origen,destino,actual.id_origen,actual.id_destino):
+                return False
+        actual = actual.siguiente
+    return True
+
+
+#FALTA VALIDAR ID VIAJE ID CLIENTE 
+        id_pasaje=input("Ingrese el id del pasaje: ")
+        id_viaje=input("Ingrese el id del viaje: ")
+        id_cliente=input("Ingrese el id del cliente: ")
+        Ciudades.mostrarCiudades()
+        id_origen=input("Ingrese el id de origen: ")
+        id_destino=input("Ingrese el id de destino: ")
+        obtener_tramos(int(id_origen),int(id_destino))
+        asiento=input("Seleccione su asiento: ")
+        disponible=asiento_disponible(Pasajes.inicio,id_viaje,asiento,id_origen,id_destino)
+        while disponible==False:
+            asiento=input("Asiento no disponible seleccione otro: ")
+            disponible=asiento_disponible(Pasajes.inicio,id_viaje,asiento,id_origen,id_destino)
+
+        valor=calcular_valor(int(id_origen),int(id_destino))
+        estado=True
+        nuevoPasaje=Pasaje(id_pasaje,id_viaje,id_cliente,id_origen,id_destino,asiento,valor,estado)
+        Pasajes.agregar(nuevoPasaje)
+        guardar_pasajes(Pasajes)
+Pasajes=ListaEnlazada()
+cargar_pasajes(Pasajes)
+
+
+#ORDENAMIENTO POR QUICK SORT
+def criterio_apellido(pasajero):
+    cliente=pasajero[0]
+    pasaje=pasajero[1]
+    return(cliente.apellido_paterno.casefold(),cliente.apellido_materno.casefold(),cliente.nombre.casefold(),int(pasaje.asiento))
+
+def criterio_nombres(pasajero):
+    cliente=pasajero[0]
+    pasaje=pasajero[1]
+    return(cliente.nombre.casefold(),cliente.apellido_paterno.casefold(),cliente.apellido_materno.casefold(),int(pasaje.asiento))
+
+def criterio_asiento(pasajero):
+    cliente=pasajero[0]
+    pasaje=pasajero[1]
+    return(int(pasaje.asiento),cliente.apellido_paterno.casefold(),cliente.apellido_materno.casefold(),cliente.nombre.casefold())
+
+def quick_sort(lista,inicio,fin,criterio):
+    if inicio<fin:
+        pivote=particionar(lista,inicio,fin,criterio)
+        quick_sort(lista,inicio,pivote-1,criterio)
+        quick_sort(lista,pivote+1,fin,criterio)
+
+def particionar(lista,inicio,fin,criterio):
+    pivote=lista[fin]
+    i=inicio-1
+    for j in range(inicio,fin):
+        if criterio(lista[j])<=criterio(pivote):
+            i+=1
+            lista[i],lista[j]=lista[j],lista[i]
+    lista[i+1],lista[fin]=lista[fin],lista[i+1]
+    return i+1
+    
+def buscar_nombre_ciudad(id_ciudad):
+    actual=Ciudades.inicio
+    while(actual!=None):
+        if str(actual.id_ciudad)==str(id_ciudad):
+            return actual.nombre
+        actual=actual.siguiente
+    return "CIUDAD FUERA DE LIMITES"
+
+
+
+id_viaje=input("Ingrese el id del viaje: ")
+        pasajes_viaje=Pasajes.buscarPasajes(id_viaje)
+        lista=[]
+        for pasaje in pasajes_viaje:
+            if pasaje.estado=="True":
+                actual=Clientes.inicio
+                while actual!=None:
+                    if actual.idCliente==pasaje.id_cliente:
+                        lista.append((actual,pasaje))
+                        break
+                    actual=actual.siguiente
+
+        if len(lista)==0:
+            print("Este viaje no tiene pasajeros vigentes.")
+        else:
+            print("Seleccione el ordenamiento:")
+            print("1. Apellido paterno (A-Z)")
+            print("2. Nombres (A-Z)")
+            print("3. Numero de asiento (menor a mayor)")
+            op=input("Seleccione una opcion: ")
+            if op=="1":
+                quick_sort(lista,0,len(lista)-1,criterio_apellido)
+            elif op=="2":
+                quick_sort(lista,0,len(lista)-1,criterio_nombres)
+            elif op=="3":
+                quick_sort(lista,0,len(lista)-1,criterio_asiento)
+            else:
+                print("Opcion no valida.")
+                continue
+            for pasajero in lista:
+                cliente=pasajero[0]
+                pasaje=pasajero[1]
+                origen=buscar_nombre_ciudad(pasaje.id_origen)
+                destino=buscar_nombre_ciudad(pasaje.id_destino)
+                print("-----------------------")
+                print(f"ASIENTO: {pasaje.asiento}")
+                print(f"PASAJERO: {cliente.nombre} {cliente.apellido_paterno} {cliente.apellido_materno}")
+                print(f"TRAMO: {origen}->{destino}")
+                print("-----------------------")
+
+
+
+id_pasaje,id_viaje,id_cliente,id_origen,id_destino,asiento,valor,estado
+1,1,1,1,3,1,8000,True
+2,1,2,1,5,2,10000,True
+3,1,3,3,5,1,6000,True
+
+id_viaje,id_bus,origen,destino,fecha,hora
+1,1,1,6,2026-11-26,08:00
+2,2,6,1,2026-11-26,09:00
+101,1,Concepcion,Santiago,2026-11-25,08:30
+102,2,Chillan,Santiago,2026-11-25,10:00
+103,3,Talca,Linares,2026-11-26,14:15
+
+idBus,patente,capacidad,disponibilidad
+1,ABCD12,40,True
+2,EFGH34,44,True
+3,IJKL56,36,True
+4,MNOP78,40,False
+
+id_ciudad,nombre,posicion
+0,ConcepciÃ³n,0
+1,Chillan,1
+2,Linares,2
+3,Talca,3
+4,Rancagua,4
+5,Santiago,5
+
+
+
+idCliente,rut,nombre,apellido_paterno,apellido_materno,fono
+1,184567892,Camila,Soto,Muñoz,987654321
+2,162345678,Matías,Rojas,Silva,912345678
+3,198765431,Valentina,Pérez,Contreras,955443322
+4,151122334,Sebastián,González,Vargas,966778899
+5,203456785,Fernanda,Castillo,Morales,933221100
+
+
+
+
+Se decidió utilizar el algoritmo quick sort para el ordenamiento de pasajeros debido a su eficiencia de O(nlog n), esto permite ordenar grandes cantidades de registros con un número de operaciones considerablemente menor que otros algoritmos como bubble sort o selection sort. Otra opción a considerar fue heap sort, que garantiza el funcionamiento en O(nlog n) incluso en el peor de los casos, pero preferimos usar quick sort por la facilidad de implementación y la reutilización de la misma función para los 3 criterios de ordenamiento.
+
+Para trabajar con nuestra estructura de datos basada en listas enlazadas, se realiza una conversión temporal a una lista de Python, permitiendo aplicar el algoritmo sin modificar el orden original de los registros almacenados. 
